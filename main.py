@@ -2,6 +2,7 @@
 
 import sys
 
+#TODO move to config separate file
 from neutronclient.v2_0 import client
 username = 'admin'
 password = 'secret'
@@ -11,6 +12,8 @@ neutron = client.Client(username = username,
 			password = password, 
 			tenant_name = tenant_name,
 			auth_url = auth_url)
+
+
 print neutron
 def subnet_list():
 	subnets = neutron.list_subnets()['subnets']
