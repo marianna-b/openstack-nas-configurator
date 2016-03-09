@@ -4,8 +4,10 @@ import sys
 
 def subnet_list():
 	print "subnet list will be here"
+
 def service_list():
 	print "service list will be here"
+
 def join():
 	if len(sys.argv) < 4:
 		print "Not enough arguments for join" #TODO add help
@@ -25,3 +27,5 @@ except:
 	print "No such option: " + sys.argv[1] 
 	print "Available options: subnet-list, service-list, join <subnet> <service>"
 	sys.exit(1)
+
+
