@@ -21,21 +21,30 @@ def subnet_list():
 		print s['name'] + " " + s['cidr']	
 
 def service_list():
-
-	f = open('services.cfg', 'r')
+	try:
+		f = open('services.cfg', 'r')
+	except:
+		print "No services.cfg file found"
+		return	
 	serv_cfg = f.readlines()
-	list_serv = serv_cfg[0].split()
+	if len(serv_cfg) < 1:
+		print "No services found"
+		return
+	try:
+		list_serv = serv_cfg[0].split()
 
-	serv_ip = {}
-	for i in range (1, len(serv_cfg)):
-		cur = serv_cfg[i].split();
-		serv_ip[cur[0]] = cur[1]
+		serv_ip = {}
+		for i in range (1, len(serv_cfg)):
+			cur = serv_cfg[i].split();
+			serv_ip[cur[0]] = cur[1]
 
-	for s in list_serv:
-		if serv_ip.has_key(s):
-			print s + " " + serv_ip.get(s)
-		else: 
-			print s
+		for s in list_serv:
+			if serv_ip.has_key(s):
+				print s + " " + serv_ip.get(s)
+			else: 
+				print s
+	except:
+		print "Wrong config file format"
 
 def join():
 	if len(sys.argv) < 4:
