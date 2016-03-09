@@ -13,21 +13,38 @@ neutron = client.Client(username = username,
 			tenant_name = tenant_name,
 			auth_url = auth_url)
 
-
 print neutron
 def subnet_list():
+
 	subnets = neutron.list_subnets()['subnets']
 	for s in subnets:
 		print s['name'] + " " + s['cidr']	
 
 def service_list():
-	print "service list will be here"
+
+	f = open('services.cfg', 'r')
+	serv_cfg = f.readlines()
+	list_serv = serv_cfg[0].split()
+
+	serv_ip = {}
+	for i in range (1, len(serv_cfg)):
+		cur = serv_cfg[i].split();
+		serv_ip[cur[0]] = cur[1]
+
+	for s in list_serv:
+		if serv_ip.has_key(s):
+			print s + " " + serv_ip.get(s)
+		else: 
+			print s
 
 def join():
 	if len(sys.argv) < 4:
 		print "Not enough arguments for join" #TODO add help
 		return
 	print "we will join " + sys.argv[2] + " with " + sys.argv[3]
+
+
+
 
 parse = {"subnet-list" : subnet_list,
 	 "service-list" : service_list,
