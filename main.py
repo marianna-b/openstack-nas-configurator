@@ -2,8 +2,20 @@
 
 import sys
 
+from neutronclient.v2_0 import client
+username = 'admin'
+password = 'secret'
+tenant_name = 'demo'
+auth_url = 'http://10.64.77.53:35357/v2.0'
+neutron = client.Client(username = username, 
+			password = password, 
+			tenant_name = tenant_name,
+			auth_url = auth_url)
+print neutron
 def subnet_list():
-	print "subnet list will be here"
+	subnets = neutron.list_subnets()['subnets']
+	for s in subnets:
+		print s['name'] + " " + s['cidr']	
 
 def service_list():
 	print "service list will be here"
