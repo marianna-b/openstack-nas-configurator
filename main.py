@@ -23,4 +23,5 @@ try:
 	parse[sys.argv[1]]()
 except:
 	print "No such option: " + sys.argv[1] 
+	print "Available options: subnet-list, service-list, join <subnet> <service>"
 	sys.exit(1)
