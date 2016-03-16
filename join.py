@@ -56,7 +56,25 @@ def alloc_ip(subn, neutron):
 				reserv_ip(str(ip), subn, neutron)	
 				return str(ip)
 
-def init_server(serv, cur_ip, vlan_id, list_serv, serv_ip):
+def ssh_add_device(s, vlan_id, nmsp, cur_ip):	
+	print "lol"
+	s.sendline("sudo ip link add name e1-vlan" + vlan_id + " link eth1 type vlan id " + vlan_id)
+	print "add vlan"
+	s.sendline("sudo ip link set e1-vlan" + vlan_id + " netns " + nmsp)
+	print "add vlan to ns"
+	s.sendline("sudo ip netns exec " + nmsp + " bash")
+	print "log ns"
+	s.sendline("sudo ifconfig e1-vlan" + vlan_id + " " + cur_ip + "/24 up")
+	print "set it up"
+	s.sendline("sudo ifconfig lo up")
+	print "set lo up"
+	s.sendline("exit")
+	print "exit"
+
+
+
+
+def init_service(serv, cur_ip, vlan_id, list_serv, serv_ip):
 	servList = ""
 	for i in list_serv:
 		if serv_ip.has_key(i):
@@ -67,6 +85,7 @@ def init_server(serv, cur_ip, vlan_id, list_serv, serv_ip):
 	for n in serv_ip:
 		servIPList += n +': { service_Ip = ["' + serv_ip[n] + '"]; }; ';
 		servIPList += "\n"
+	nmsp = "ns" + serv[1:]
 	(ip, path, cfg) = E.get_server()	
 	s = pxssh.pxssh()
 	s.login(ip, 'c4dev', 'c4dev!')
@@ -75,10 +94,23 @@ def init_server(serv, cur_ip, vlan_id, list_serv, serv_ip):
 	conf += "services: {\n " + 'serviceNamesList = ('  + servList +');';
 	conf += "\n" + servIPList + "\n };\n}"
 	conf += '\' > server_config.cfg';
+
 	s.sendline(conf)
-	s.prompt()
+	print "conf"
+	s.sendline("sudo ip netns add " + nmsp)
+	print "ns add"
+	ssh_add_device(s, str(vlan_id), nmsp, cur_ip)	
+	s.sendline("./restart_server")
+	print "restart serv"
+	s.logout()
+	print "lol2"
 
-
+def add_device(serv, cur_ip, vlan_id, list_serv, serv_ip):
+	s = pxssh.pxssh()
+	s.login(ip, 'c4dev', 'c4dev!')
+	nmsp = "ns" + serv[1:]
+	ssh_add_device(s, str(vlan_id), nmsp, cur_ip)	
+	s.logout()
 
 def join(subn, serv):
 	neutron = E.get_neutron()
@@ -105,9 +137,12 @@ def join(subn, serv):
 			print str(e)
 	if not res:
 		print "Failed to start server: bad ip address"
-		#TODO
 		#return		
 	vlan_id = neutron.list_networks(id = subnet['network_id'])['networks'][0]['provider:segmentation_id']
-	init_server(serv, cur_ip, vlan_id, list_serv, serv_ip)
-
+	if serv_ip.has_key(serv):
+		add_device(serv, cur_ip, vlan_id, list_serv, serv_ip)	
+	else:
+		serv_ip[serv]=cur_ip
+		init_service(serv, cur_ip, vlan_id, list_serv, serv_ip)
+	print "uf"
 
