@@ -101,7 +101,7 @@ def join():
 	serv = sys.argv[3]
 	res = True
 	cur_ip = ""
-	subnet = neutron.list_subnets(name=subn)['subnets'][0]
+	subnet = neutron.list_subnets(name = subn)['subnets'][0]
 	if serv_ip.has_key(serv):
 		try:
 			cur_ip = serv_ip.get(serv)
@@ -116,7 +116,9 @@ def join():
 	if not res:
 		print "Failed to start server: bad ip address"
 		#TODO
-		return		
+		#return		
+	vlan_id = neutron.list_networks(id = subnet['network_id'])['networks'][0]['provider:segmentation_id']
+	init_server(serv, cur_ip, vlan_id)
 
 
 parse = {"subnet-list" : subnet_list,
