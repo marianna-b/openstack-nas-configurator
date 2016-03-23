@@ -78,7 +78,6 @@ def init_service(serv, cur_ip, vlan_id, list_serv, serv_ip):
 	print path
 	print servIPList 
 	s.sendline("cd " + path + "nas-srv-et-scripts")
-	s.sendline("sudo ./delete_services")
 	s.sendline("./gen_cfg.sh " + servIPList)
 	ssh_add_device(s, str(vlan_id), nmsp, cur_ip, serv)	
 	s.sendline("sudo ./install_server")
