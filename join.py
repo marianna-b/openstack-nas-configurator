@@ -96,34 +96,19 @@ def add_device(serv, cur_ip, vlan_id, list_serv, serv_ip):
 def join(subn, serv):
 	neutron = E.get_neutron()
 	(list_serv, serv_ip) = E.get_services()
-	res = True
 	cur_ip = ""
 	subnet = neutron.list_subnets(name = subn)['subnets'][0]
 	if serv_ip.has_key(serv):
-		try:
-			cur_ip = serv_ip.get(serv)
-			res = check(cur_ip, subnet, neutron)
-			if res:
-				reserv_ip(cur_ip, subnet, neutron)
-		except:
-			print "Unknown subnet"
-			return		
-	else:
-		cur_ip = alloc_ip(subnet, neutron)
-		try:
-			f = open('services.cfg', 'a')
+		print "Failed to join: service already in use"
+		return		
+	cur_ip = alloc_ip(subnet, neutron)
+	try:
+		f = open('services.cfg', 'a')
 
-			f.write(serv + " " + cur_ip + '\n')
-			f.close()
-		except Exception, e:
-			print str(e)
-	if not res:
-		print "Failed to start server: bad ip address"
-		#return		
+		f.write(serv + " " + cur_ip + '\n')
+		f.close()
+	except Exception, e:
+		print str(e)
 	vlan_id = neutron.list_networks(id = subnet['network_id'])['networks'][0]['provider:segmentation_id']
-	if serv_ip.has_key(serv):
-		add_device(serv, cur_ip, vlan_id, list_serv, serv_ip)	
-	else:
-		serv_ip[serv]=cur_ip
-		init_service(serv, cur_ip, vlan_id, list_serv, serv_ip)
-
+	serv_ip[serv]=cur_ip
+	init_service(serv, cur_ip, vlan_id, list_serv, serv_ip)
