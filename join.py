@@ -56,60 +56,42 @@ def alloc_ip(subn, neutron):
 				reserv_ip(str(ip), subn, neutron)	
 				return str(ip)
 
-def ssh_add_device(s, vlan_id, nmsp, cur_ip):	
-	print "lol"
-	s.sendline("sudo ip link add name e1-vlan" + vlan_id + " link eth1 type vlan id " + vlan_id)
-	print "add vlan"
-	s.sendline("sudo ip link set e1-vlan" + vlan_id + " netns " + nmsp)
-	print "add vlan to ns"
-	s.sendline("sudo ip netns exec " + nmsp + " bash")
-	print "log ns"
-	s.sendline("sudo ifconfig e1-vlan" + vlan_id + " " + cur_ip + "/24 up")
-	print "set it up"
-	s.sendline("sudo ifconfig lo up")
-	print "set lo up"
-	s.sendline("exit")
-	print "exit"
+def ssh_add_device(s, vlan_id, nmsp, cur_ip, serv):	
+	s.sendline("sudo ./add_serv.sh " + serv + " " + nmsp + " " + vlan_id + " " + cur_ip)
 
 
-
+def login(ip, s):
+	username = raw_input("user: ")
+	password = getpass.getpass("pswd: ")
+	s.login(ip, username, password)
+	
 
 def init_service(serv, cur_ip, vlan_id, list_serv, serv_ip):
-	servList = ""
-	for i in list_serv:
-		if serv_ip.has_key(i):
-			if servList != "":
-				servList += ","
-			servList += '"' + i +'"'	
 	servIPList = ""
 	for n in serv_ip:
-		servIPList += n +': { service_Ip = ["' + serv_ip[n] + '"]; }; ';
-		servIPList += "\n"
+		servIPList += n + ' ' + serv_ip[n] + ' ';
 	nmsp = "ns" + serv[1:]
-	(ip, path, cfg) = E.get_server()	
+	(ip, path) = E.get_server()	
+	path = path[:-1]
 	s = pxssh.pxssh()
-	s.login(ip, 'c4dev', 'c4dev!')
-	s.sendline("cd " + path)
-	conf = 'echo \'application: {' + "\n" + 'connectSocket: ' + cfg + "\n"
-	conf += "services: {\n " + 'serviceNamesList = ('  + servList +');';
-	conf += "\n" + servIPList + "\n };\n}"
-	conf += '\' > server_config.cfg';
-
-	s.sendline(conf)
-	print "conf"
-	s.sendline("sudo ip netns add " + nmsp)
-	print "ns add"
-	ssh_add_device(s, str(vlan_id), nmsp, cur_ip)	
-	s.sendline("./restart_server")
-	print "restart serv"
+	login(ip, s)
+	print path
+	print servIPList 
+	s.sendline("cd " + path + "nas-srv-et-scripts")
+	s.sendline("sudo ./delete_services")
+	s.sendline("./gen_cfg.sh " + servIPList)
+	ssh_add_device(s, str(vlan_id), nmsp, cur_ip, serv)	
+	s.sendline("sudo ./install_server")
+	s.sendline("cd " + path + "nas-srv-et-app")
+	s.sendline("sudo ./restart_server")
 	s.logout()
-	print "lol2"
 
 def add_device(serv, cur_ip, vlan_id, list_serv, serv_ip):
 	s = pxssh.pxssh()
-	s.login(ip, 'c4dev', 'c4dev!')
+	(ip, path) = E.get_server()	
+	login(ip, s)
 	nmsp = "ns" + serv[1:]
-	ssh_add_device(s, str(vlan_id), nmsp, cur_ip)	
+	ssh_add_device(s, str(vlan_id), nmsp, cur_ip, serv)	
 	s.logout()
 
 def join(subn, serv):
@@ -131,7 +113,8 @@ def join(subn, serv):
 		cur_ip = alloc_ip(subnet, neutron)
 		try:
 			f = open('services.cfg', 'a')
-			f.write(serv + " " + cur_ip)
+
+			f.write(serv + " " + cur_ip + '\n')
 			f.close()
 		except Exception, e:
 			print str(e)
@@ -144,5 +127,4 @@ def join(subn, serv):
 	else:
 		serv_ip[serv]=cur_ip
 		init_service(serv, cur_ip, vlan_id, list_serv, serv_ip)
-	print "uf"
 

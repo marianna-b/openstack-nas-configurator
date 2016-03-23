@@ -38,4 +38,4 @@ def get_server():
 		sys.exit(1)
 	serv_cfg = f.readlines()
 	f.close()
-	return (serv_cfg[0], serv_cfg[1], serv_cfg[2])
+	return (serv_cfg[0], serv_cfg[1])
