@@ -87,7 +87,7 @@ def init_service(serv, cur_ip, vlan_id, list_serv, serv_ip):
 
 def join(subn, serv):
 	neutron = E.get_neutron()
-	(list_serv, serv_ip) = E.get_services()
+	(list_serv, serv_ip, serv_subn) = E.get_services()
 	cur_ip = ""
 	subnet = neutron.list_subnets(name = subn)['subnets'][0]
 	if serv_ip.has_key(serv):
@@ -97,7 +97,7 @@ def join(subn, serv):
 	try:
 		f = open('services.cfg', 'a')
 
-		f.write(serv + " " + cur_ip + '\n')
+		f.write(serv + " " + cur_ip + " " + subn + '\n')
 		f.close()
 	except Exception, e:
 		print str(e)

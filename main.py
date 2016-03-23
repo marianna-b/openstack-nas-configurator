@@ -3,6 +3,7 @@
 import subnet_list as SL1
 import service_list as SL2
 import join as J
+import delete as D
 from netaddr import *
 import sys
 
@@ -11,6 +12,13 @@ def subnet_list_wrap():
 
 def service_list_wrap():
 	SL2.service_list()
+
+def delete_wrap():
+	if len(sys.argv) < 3:
+		print "Not enough arguments for join" #TODO add help
+		return
+	serv = sys.argv[2]
+	D.delete(serv)
 
 def join_wrap():
 	if len(sys.argv) < 4:
@@ -24,6 +32,7 @@ def join_wrap():
 parse = {"subnet-list" : subnet_list_wrap,
 	 "service-list" : service_list_wrap,
 	 "join" : join_wrap,
+	 "delete" : delete_wrap,
 }
 
 if len(sys.argv) < 2:

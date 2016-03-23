@@ -23,12 +23,14 @@ def get_services():
 	try:
 		list_serv = serv_cfg[0].split()
 		serv_ip = {}
+		serv_subn = {}
 		for i in range (1, len(serv_cfg)):
 			cur = serv_cfg[i].split();
 			serv_ip[cur[0]] = cur[1]
+			serv_subn[cur[0]] = cur[2]
 	except:
 		print "Wrong config file format"
-	return (list_serv, serv_ip)
+	return (list_serv, serv_ip, serv_subn)
 
 def get_server():
 	try:
