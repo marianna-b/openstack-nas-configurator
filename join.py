@@ -85,14 +85,6 @@ def init_service(serv, cur_ip, vlan_id, list_serv, serv_ip):
 	s.sendline("sudo ./restart_server")
 	s.logout()
 
-def add_device(serv, cur_ip, vlan_id, list_serv, serv_ip):
-	s = pxssh.pxssh()
-	(ip, path) = E.get_server()	
-	login(ip, s)
-	nmsp = "ns" + serv[1:]
-	ssh_add_device(s, str(vlan_id), nmsp, cur_ip, serv)	
-	s.logout()
-
 def join(subn, serv):
 	neutron = E.get_neutron()
 	(list_serv, serv_ip) = E.get_services()
