@@ -23,13 +23,13 @@ https://github.com/mariashko/openstack-nas-configurator-scripts - скрипты
 
 <b>Service-list</b> парсит services.cfg и отображает информацию оттуда.
 
-<b>Join <subnet> <service></b> 
+<b>Join \<subnet\> \<service\></b> 
 
   1. находит и убирает из allocation_pools subnet IP-address
   2. добавляет запись к services.cfg
   3.по ssh на сервере: добавляет namespace, vlan-dev и пр. для сервиса с помощью add_serv.sh, переписывает server_config.cfg с помощью gen_cfg.py и перезапускает сервер
 
-<b> Delete <service> </b>
+<b> Delete \<service\> </b>
 
   1. убирает запись из services.cfg
   2. возвращает IP в allocation_pools subnet
