@@ -94,6 +94,10 @@ def join(subn, serv):
 		print "Failed to join: service already in use"
 		return		
 	cur_ip = alloc_ip(subnet, neutron)
+
+	vlan_id = neutron.list_networks(id = subnet['network_id'])['networks'][0]['provider:segmentation_id']
+	serv_ip[serv]=cur_ip
+	init_service(serv, cur_ip, vlan_id, list_serv, serv_ip)
 	try:
 		f = open('services.cfg', 'a')
 
@@ -101,6 +105,4 @@ def join(subn, serv):
 		f.close()
 	except Exception, e:
 		print str(e)
-	vlan_id = neutron.list_networks(id = subnet['network_id'])['networks'][0]['provider:segmentation_id']
-	serv_ip[serv]=cur_ip
-	init_service(serv, cur_ip, vlan_id, list_serv, serv_ip)
+	
